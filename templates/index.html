@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Titanic Survival Prediction</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            padding: 40px;
+            max-width: 600px;
+            width: 100%;
+        }
+        
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 10px;
+            font-size: 2em;
+        }
+        
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 0.9em;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #444;
+            font-weight: 600;
+            font-size: 0.95em;
+        }
+        
+        input, select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 1em;
+            transition: border-color 0.3s;
+        }
+        
+        input:focus, select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        button {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s;
+            margin-top: 10px;
+        }
+        
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+        
+        button:active {
+            transform: translateY(0);
+        }
+        
+        .result {
+            margin-top: 30px;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+            font-size: 1.3em;
+            font-weight: 700;
+            animation: fadeIn 0.5s;
+        }
+        
+        .result.survived {
+            background: #d4edda;
+            color: #155724;
+            border: 2px solid #c3e6cb;
+        }
+        
+        .result.not-survived {
+            background: #f8d7da;
+            color: #721c24;
+            border: 2px solid #f5c6cb;
+        }
+        
+        .confidence {
+            font-size: 0.8em;
+            margin-top: 10px;
+            color: #555;
+        }
+        
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .info {
+            background: #e7f3ff;
+            border-left: 4px solid #2196F3;
+            padding: 12px;
+            margin-bottom: 20px;
+            border-radius: 4px;
+            font-size: 0.9em;
+            color: #0d47a1;
+        }
+        
+        @media (max-width: 600px) {
+            .container {
+                padding: 25px;
+            }
+            
+            h1 {
+                font-size: 1.5em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚢 Titanic Survival Predictor</h1>
+        <p class="subtitle">Enter passenger details to predict survival</p>
+        
+        <div class="info">
+            <strong>ℹ️ Model Information:</strong> This predictor uses Logistic Regression trained on historical Titanic data.
+        </div>
+        
+        <form action="/predict" method="POST">
+            <div class="form-group">
+                <label for="pclass">Passenger Class:</label>
+                <select id="pclass" name="pclass" required>
+                    <option value="">-- Select Class --</option>
+                    <option value="1">1st Class (Upper)</option>
+                    <option value="2">2nd Class (Middle)</option>
+                    <option value="3">3rd Class (Lower)</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="sex">Gender:</label>
+                <select id="sex" name="sex" required>
+                    <option value="">-- Select Gender --</option>
+                    <option value="0">Female</option>
+                    <option value="1">Male</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="age">Age (years):</label>
+                <input type="number" id="age" name="age" min="0" max="100" step="0.1" placeholder="e.g., 25" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="fare">Fare (£):</label>
+                <input type="number" id="fare" name="fare" min="0" step="0.01" placeholder="e.g., 7.25" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="embarked">Port of Embarkation:</label>
+                <select id="embarked" name="embarked" required>
+                    <option value="">-- Select Port --</option>
+                    <option value="0">Cherbourg (C)</option>
+                    <option value="1">Queenstown (Q)</option>
+                    <option value="2">Southampton (S)</option>
+                </select>
+            </div>
+            
+            <button type="submit">🔮 Predict Survival</button>
+        </form>
+        
+        {% if prediction_text %}
+        <div class="result {% if 'SURVIVED' in prediction_text and '❌' not in prediction_text %}survived{% else %}not-survived{% endif %}">
+            {{ prediction_text }}
+            {% if confidence %}
+            <div class="confidence">Confidence: {{ confidence }}</div>
+            {% endif %}
+        </div>
+        {% endif %}
+    </div>
+</body>
+</html>
