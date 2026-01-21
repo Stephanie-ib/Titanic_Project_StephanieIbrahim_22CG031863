@@ -1,0 +1,14 @@
+Titanic Survival Prediction System
+
+
+Name: Ibrahim Stephanie Filimiyan
+
+Matric Number: 22CG031863
+
+Machine Learning Algorithm Used: Logistic Regression
+
+Model Persistence Method Used: Pickle
+
+Live URL of the hosted application: https://titanic-project-stephanieibrahim.onrender.com
+
+GitHub repository link: https://github.com/Stephanie-ib/Titanic_Project_StephanieIbrahim_22CG031863
